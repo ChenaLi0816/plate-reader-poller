@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypoller
+spec:
+  containers:
+  - image: registry.cn-hangzhou.aliyuncs.com/shifu/go-poller
+    name: mypoller
+    env:
+    - name: poll_interval
+      value: "15"

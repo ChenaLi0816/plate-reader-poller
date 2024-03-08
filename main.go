@@ -6,8 +6,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -25,9 +27,20 @@ func main() {
 		log.Printf("time interval of polling is set as %d seconds.\n", timeInterval)
 	}
 
+	c := make(chan os.Signal)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+
+	ticker := time.NewTicker(time.Second * time.Duration(timeInterval))
+	defer ticker.Stop()
+
 	for {
-		sendHttpReq(client)
-		time.Sleep(time.Second * time.Duration(timeInterval))
+		select {
+		case s := <-c:
+			log.Println("get signal:", s)
+			return
+		case <-ticker.C:
+			sendHttpReq(client)
+		}
 	}
 
 }
